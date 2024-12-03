@@ -1,1 +1,1 @@
-# QuMeD : Queue Metadata Editor
+# QuMEd : Queue Metadata Editor
