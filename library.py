@@ -1,8 +1,22 @@
 import os
-from mutagen.easyid3 import EasyID3 as id3
-from mutagen.flac import FLAC as flac
+from mutagen.easyid3 import EasyID3
+from mutagen.flac import FLAC
 from typing import Optional
+import re
 
+
+
+# ========================GLOBAL VARIABLES========================
+
+# Elements specified by the user to get all the categories of the metadata.
+ELEMENTS_OF_NAME = {"artist": "%A%",
+                    "album": "%a%",
+                    "title": "%t%",
+                    "track_number": "%n%",
+                    "disc_number": "%d%",
+                    "bpm": "%b%",
+                    "genre": "%g%",
+                    "release_date": "%r%"}
 
 
 
@@ -52,11 +66,11 @@ def get_file_extension (file_name: str):
     Returns:
         string: the extension of the file.
     """
-    extention = ""
-    while (file_name[-1] != "."):
-        extention = file_name[-1] + extention
+    extension = ""
+    while file_name[-1] != ".":
+        extension = file_name[-1] + extension
         file_name = file_name[:-1]
-    return extention
+    return extension
 
 
 
@@ -65,10 +79,27 @@ def get_file_extension (file_name: str):
 # ======================== FILE fFORMAT FUNCTIONS ========================
 
 
-def get_name_structure(file_name: str):
-    return
 
+def get_tags_by_structure(structure: str, file_name: str) -> dict:
+    tags = {}
+    pattern = structure
 
+    # Replace placeholders with regex patterns
+    for key, value in ELEMENTS_OF_NAME.items():
+        pattern = pattern.replace(value, f"(?P<{key}>.+?)")
+
+    # Compile the regex pattern
+    regex = re.compile(pattern)
+    match = regex.match(file_name)
+
+    if match:
+        tags = match.groupdict()
+
+        # Convert track number to integer
+        if 'track_number' in tags:
+            tags['track_number'] = int(tags['track_number'].split(".")[0])
+
+    return tags
 
 
 
@@ -82,9 +113,9 @@ def get_name_structure(file_name: str):
 """
 edit the metadata of a .flac file.
 """
-# i'll might add more parameters later, depending on what the user wants to edit and most importantly, my needs and what mutagen supports.
+# I'll might add more parameters later, depending on what the user wants to edit and most importantly, my needs and what mutagen supports.
 def edit_mp3_metadata(file_path: str, title: Optional[str] = None, artist: Optional[str] = None, album: Optional[str] = None, bpm: Optional[str] = None, genre: Optional[str] = None, release_date: Optional[str] = None, track_number: Optional[str] = None, disc_number: Optional[str] = None):
-    audio = flac(file_path)
+    audio = FLAC(file_path)
     audio['title'] = title #modifier pour que le code modifie seulement les arguments qui n'ont pas la valeur none 
     audio['artist'] = artist
     audio['album'] = album
