@@ -9,14 +9,16 @@ import re
 # ========================GLOBAL VARIABLES========================
 
 # Elements specified by the user to get all the categories of the metadata.
-ELEMENTS_OF_NAME = {"artist": "%A%",
-                    "album": "%a%",
-                    "title": "%t%",
-                    "track_number": "%n%",
-                    "disc_number": "%d%",
-                    "bpm": "%b%",
-                    "genre": "%g%",
-                    "release_date": "%r%"}
+ELEMENTS_OF_NAME = {"%A%": "artist",
+                    "%a%": "album",
+                    "%t%": "title",
+                    "%n%": "track_number",
+                    "%d%": "disc_number",
+                    "%b%": "bpm",
+                    "%g%": "genre",
+                    "%r%": "release_date"}
+
+TAGS_AVAILIBLE = ["artist", "album", "title", "track_number", "disc_number", "bpm", "genre", "release_date"]
 
 
 
@@ -76,28 +78,51 @@ def get_file_extension (file_name: str):
 
 
 
-# ======================== FILE fFORMAT FUNCTIONS ========================
+# ======================== FILE FORMAT FUNCTIONS ========================
 
 
+# if the structure is "%n%. %a% - %t% - %A%" and the name is "01. Pattern Factory Operators - Red Card Stratagem (feat. Jankennpopp) - Custom Air Modulations.wav",
+# it must return a dict with this structure : {"track_number" : 1 ,
+#                                              "artist" : "Pattern Factory Operators" ,
+#                                              "title" : "Red Card Stratagem (feat. Jankennpopp)" ,
+#                                              "album" : "Custom Air Modulations"}
 
-def get_tags_by_structure(structure: str, file_name: str) -> dict:
+
+# def get_tags_by_structure(structure: str, file_name: str) -> dict:
+#     tags = {}
+#     pattern = structure
+#
+#     tags = {}
+#     pattern = structure
+#
+#     # Replace placeholders with regex patterns
+#     for key, value in ELEMENTS_OF_NAME.items():
+#         pattern = pattern.replace(key, f"(?P<{value}>[^-]+)") #?P<{value}>.+?
+#
+#     # Compile the regex pattern
+#     regex = re.compile(pattern)
+#     match = regex.match(file_name)
+#
+#     if match:
+#         tags = match.groupdict()
+#
+#         # Convert track number to integer
+#         if 'track_number' in tags:
+#             tags['track_number'] = int(tags['track_number'].split(".")[0])
+#
+#     return tags
+
+def get_tags_by_structure(separators: list, order_of_tags: list, file_name: str) -> dict:
+    index_oot = 0
     tags = {}
-    pattern = structure
+    for tag in order_of_tags:
+        #print(f"tag :{type(tag)}, {tag}")
 
-    # Replace placeholders with regex patterns
-    for key, value in ELEMENTS_OF_NAME.items():
-        pattern = pattern.replace(value, f"(?P<{key}>.+?)")
 
-    # Compile the regex pattern
-    regex = re.compile(pattern)
-    match = regex.match(file_name)
-
-    if match:
-        tags = match.groupdict()
-
-        # Convert track number to integer
-        if 'track_number' in tags:
-            tags['track_number'] = int(tags['track_number'].split(".")[0])
+        buffer=file_name.split(separators[0])
+        #print(f"buffer : {buffer}")
+        tags[order_of_tags[index_oot]] = buffer[0]
+        index_oot += 1
 
     return tags
 
