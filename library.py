@@ -114,6 +114,7 @@ def get_file_extension (file_name: str):
 
 def get_tags_by_structure(separators: list, order_of_tags: list, file_name: str) -> dict:
     index_oot = 0
+    index_separators = 0
     tags = {}
     for tag in order_of_tags:
         #print(f"tag :{type(tag)}, {tag}")
