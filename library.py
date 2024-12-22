@@ -18,14 +18,21 @@ ELEMENTS_OF_NAME = {"%A%": "artist",
                     "%g%": "genre",
                     "%r%": "release_date"}
 
-TAGS_AVAILIBLE = ["artist", "album", "title", "track_number", "disc_number", "bpm", "genre", "release_date"]
+TAGS_AVAILIBLE = [  "artist", 
+                    "album", 
+                    "title", 
+                    "track_number", 
+                    "disc_number", 
+                    "bpm", 
+                    "genre", 
+                    "release_date"]
 
 
 
 # ======================== FILE NAME GETTING FUNCTIONS ========================
 
 
-def get_file_name (file_path: str):
+def get_file_name (file_path: str) -> str:
     """Return the name of the file from the file path in a string.
 
     Args:
@@ -42,24 +49,26 @@ def get_file_name (file_path: str):
 
 
 
-def get_files_name(directory_path: str):
+def get_files_name(directory_path: str) -> tuple:
     """Return the name of the all the files from the file path in a string.
 
     Args:
         directory_path (str): path of the directory.
 
     Returns:
-        array: An array of strings, each string being the name of a file in the directory. If an error occurs, an empty array is returned.
+        tuple: An tuple of strings, each string being the name of a file in the 
+        directory. If an error occurs, an empty tuple is returned.
     """    
     try:
-        return [f for f in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, f))]
+        return tuple([f for f in os.listdir(directory_path) 
+                if os.path.isfile(os.path.join(directory_path, f))])
     except Exception as e:
         print(f"Uh-Oh ! An error occurred: {e}")
-        return []
+        return ()
 
 
 
-def get_file_extension (file_name: str):
+def get_file_extension (file_name: str) -> str:
     """Return the extension of the file from the file name.
 
     Args:
@@ -73,6 +82,17 @@ def get_file_extension (file_name: str):
         extension = file_name[-1] + extension
         file_name = file_name[:-1]
     return extension
+
+def get_file_name_without_extension(file_name: str) -> str:
+    """Gets the file name without its extension
+
+    Args:
+        file_name (str): the name of the file
+
+    Returns:
+        str: the name of the file without its extension
+    """
+    return file_name.split("." + get_file_extension(file_name))[0]
 
 
 
@@ -112,35 +132,83 @@ def get_file_extension (file_name: str):
 #
 #     return tags
 
-def get_tags_by_structure(separators: list, order_of_tags: list, file_name: str) -> dict:
-    index_oot = 0
-    index_separators = 0
+# def get_tags_by_structure(separators: list, order_of_tags: list, file_name: str) -> dict:
+#     index_oot = 0
+#     index_separators = 0
+#     tags = {}
+#     for tag in order_of_tags:
+#         #print(f"tag :{type(tag)}, {tag}")
+
+
+#         buffer=file_name.split(separators[index_separators])
+#         #print(f"buffer : {buffer}")
+#         tags[order_of_tags[index_oot]] = buffer[0]
+#         index_oot += 1
+
+#     return tags
+
+
+
+
+
+def get_tags_by_structure(structure: str, file_name: str) -> dict:
+    
     tags = {}
-    for tag in order_of_tags:
-        #print(f"tag :{type(tag)}, {tag}")
-
-
-        buffer=file_name.split(separators[0])
-        #print(f"buffer : {buffer}")
-        tags[order_of_tags[index_oot]] = buffer[0]
-        index_oot += 1
-
+    separators = get_separators(structure)
+    file_name_index = 0
+    
+    for i in range(len(structure) - 2):
+        if structure[i] == "%" and structure[i+2] == "%":
+            tags[ELEMENTS_OF_NAME["%" + structure[i+1] + "%"]] = ""
+    # for i in range(len(tags.keys())):
+    #     while file_name[file_name_index] < len(file_name) and 
     return tags
 
 
 
+def get_separators(structure: str) -> tuple:
+    """Gets every separator of the structure (every string that is not in
+    ELEMENTS_OF_NAME.keys()), and so of the file name.
+
+    Args:
+        structure (str): structure of the file name
+
+    Returns:
+        tuple: a tuple which contains every separators of the structure and so 
+        of the file name.
+    """
+    pattern = re.compile(r'%[a-zA-Z]%')
+    
+    matches = pattern.finditer(structure)
+    
+    separators = []
+    last_end = 0
+    
+    for match in matches:
+        start, end = match.span()
+        if start > last_end:
+            separators.append(structure[last_end:start])
+        last_end = end
+    
+    if last_end < len(structure):
+        separators.append(structure[last_end:])
+    
+    return tuple(separators)
 
 
 
 
 
-
-
-"""
-edit the metadata of a .flac file.
-"""
 # I'll might add more parameters later, depending on what the user wants to edit and most importantly, my needs and what mutagen supports.
-def edit_mp3_metadata(file_path: str, title: Optional[str] = None, artist: Optional[str] = None, album: Optional[str] = None, bpm: Optional[str] = None, genre: Optional[str] = None, release_date: Optional[str] = None, track_number: Optional[str] = None, disc_number: Optional[str] = None):
+def edit_mp3_metadata(  file_path: str, 
+                        title: Optional[str] = None, 
+                        artist: Optional[str] = None, 
+                        album: Optional[str] = None, 
+                        bpm: Optional[str] = None, 
+                        genre: Optional[str] = None, 
+                        release_date: Optional[str] = None, 
+                        track_number: Optional[str] = None, 
+                        disc_number: Optional[str] = None   ) -> None:
     audio = FLAC(file_path)
     audio['title'] = title #modifier pour que le code modifie seulement les arguments qui n'ont pas la valeur none 
     audio['artist'] = artist
@@ -157,3 +225,50 @@ def get_info(file_name, separators=None):
 
 def order_of_elements(file_name, separators=None):
     return len(get_info(file_name, separators))
+
+
+
+
+# def get_separators(structure: str) -> tuple:
+#     separators_list = []
+#     separator = ""
+#     for i in range(len(structure) - 2):
+#         j = i + 1
+#         if structure[i] == "%":
+#             while structure[j] != "%":
+#                 separator += structure[j]
+#                 j += 1
+#             separators_list.append(separator)
+#         separator = ""
+#     return tuple(separators_list)
+
+# def get_separators(structure: str) -> tuple:
+#     """Gets every separator of the structure (every string that is not in
+#     ELEMENTS_OF_NAME.keys()), and so of the file name.
+
+#     Args:
+#         structure (str): structure of the file name
+
+#     Returns:
+#         tuple: a tuple which contains every separators of the structure and so 
+#         of the file name.
+#     """
+#     separators = []
+#     i = 0
+    
+#     while i < len(structure):
+        
+#         if structure[i] == "%" and i + 2 < len(structure) and structure[i+2] == "%":
+#             i += 3
+        
+#         else:
+#             separator = ""
+#             while i < len(structure) and (structure[i] != "%" or 
+#                         (i + 2 < len(structure) and structure[i+2] != "%")):
+                
+#                 separator += structure[i]
+#                 i += 1
+                
+#             if separator:
+#                 separators.append(separator)
+#     return tuple(separators)
