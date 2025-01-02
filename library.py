@@ -152,21 +152,47 @@ def get_file_name_without_extension(file_name: str) -> str:
 
 
 def get_tags_by_structure(structure: str, file_name: str) -> dict:
-    
+    """Associates in a dict every tag of the file name with its correct key,
+    based on the scheme given by the user.
+
+    Args:
+        structure (str): how the file name is organized
+        file_name (str): the name of the file
+
+    Returns:
+        dict: a dict containing the tags presents in the file name
+    """
     tags = {}
     separators = get_separators(structure)
     file_name_index = 0
+    tag_index = 0
+    
+    #print(tags_keys)
     
     for i in range(len(structure) - 2):
-        if structure[i] == "%" and structure[i+2] == "%":
+        if (structure[i] == "%" and structure[i+2] == "%"):
             tags[ELEMENTS_OF_NAME["%" + structure[i+1] + "%"]] = ""
-    # for i in range(len(tags.keys())):
-    #     while file_name[file_name_index] < len(file_name) and 
+    
+    tags_keys_list = list(tags.keys())
+    
+    while file_name_index < len(file_name):
+        match = False
+        for separator in separators: #marche pas psq ça parcourt tout 
+            if file_name[file_name_index:file_name_index+len(separator)] == separator:
+                match = True
+                file_name_index += len(separator)
+                tag_index += 1
+                separators = separators[1:]
+                break
+    
+        if not match:
+            tags[tags_keys_list[tag_index]] += file_name[file_name_index]
+            file_name_index += 1
     return tags
 
 
 
-def get_separators(structure: str) -> tuple:
+def get_separators(structure: str) -> list:
     """Gets every separator of the structure (every string that is not in
     ELEMENTS_OF_NAME.keys()), and so of the file name.
 
@@ -193,8 +219,7 @@ def get_separators(structure: str) -> tuple:
     if last_end < len(structure):
         separators.append(structure[last_end:])
     
-    return tuple(separators)
-
+    return separators
 
 
 
