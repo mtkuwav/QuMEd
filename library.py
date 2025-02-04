@@ -191,6 +191,14 @@ def get_tags_by_structure(structure: str, file_name: str) -> dict:
     return tags
 
 
+def make_integer_tags(tags: dict) -> None:
+    if tags["bpm"]:
+        print("oui")
+        
+
+def check_if_discnb_and_tracknb_sticked(structure: str, file_name: str) -> None:
+    
+
 
 def get_separators(structure: str) -> list:
     """Gets every separator of the structure (every string that is not in

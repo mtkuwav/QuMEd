@@ -12,10 +12,12 @@ structure2 = "%n% - %t%, %A%, (%r%)"
 # print(library.get_tags_by_structure(structure, file_name))
 
 
-print(test_name)
-print(test_name2)
-print(library.get_tags_by_structure(structure, test_name))
-print(library.get_tags_by_structure(structure2, test_name2))
+# print(test_name)
+# print(test_name2)
+# print(library.get_tags_by_structure(structure, test_name))
+# print(library.get_tags_by_structure(structure2, test_name2))
+
+
 # print(library.get_number_of_separators(separators, test_name))
 
 # print(library.get_file_extension(test_name))
