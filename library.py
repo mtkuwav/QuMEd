@@ -9,23 +9,14 @@ import re
 # ========================GLOBAL VARIABLES========================
 
 # Elements specified by the user to get all the categories of the metadata.
-ELEMENTS_OF_NAME = {"%A%": "artist",
-                    "%a%": "album",
-                    "%t%": "title",
-                    "%n%": "track_number",
-                    "%d%": "disc_number",
-                    "%b%": "bpm",
-                    "%g%": "genre",
-                    "%r%": "release_date"}
-
-TAGS_AVAILIBLE = [  "artist", 
-                    "album", 
-                    "title", 
-                    "track_number", 
-                    "disc_number", 
-                    "bpm", 
-                    "genre", 
-                    "release_date"]
+ELEMENTS_OF_NAME = {"%artist%": "artist",
+                    "%album%": "album",
+                    "%title%": "title",
+                    "%track_number%": "track_number",
+                    "%disc_number%": "disc_number",
+                    "%bpm%": "bpm",
+                    "%genre%": "genre",
+                    "%release_date%": "release_date"}
 
 
 
@@ -162,32 +153,41 @@ def get_tags_by_structure(structure: str, file_name: str) -> dict:
     Returns:
         dict: a dict containing the tags presents in the file name
     """
+    # Initialiser le dictionnaire des tags
     tags = {}
+    
+    # Extraire les tags du pattern/structure en utilisant regex
+    tag_pattern = '|'.join(re.escape(key) for key in ELEMENTS_OF_NAME.keys())
+    pattern = re.compile(f'({tag_pattern})')
+    
+    # Trouver tous les tags dans la structure
+    matches = pattern.finditer(structure)
+    for match in matches:
+        tag = match.group(1)
+        tags[ELEMENTS_OF_NAME[tag]] = ""
+    
+    # Obtenir les séparateurs
     separators = get_separators(structure)
+
+    tags_keys_list = list(tags.keys())
+
     file_name_index = 0
     tag_index = 0
     
-    #print(tags_keys)
-    
-    for i in range(len(structure) - 2):
-        if (structure[i] == "%" and structure[i+2] == "%"):
-            tags[ELEMENTS_OF_NAME["%" + structure[i+1] + "%"]] = ""
-    
-    tags_keys_list = list(tags.keys())
-    
     while file_name_index < len(file_name):
         match = False
-        for separator in separators: #marche pas psq ça parcourt tout 
-            if file_name[file_name_index:file_name_index+len(separator)] == separator:
+        if separators and tag_index < len(separators):
+            sep = separators[tag_index]
+            if file_name[file_name_index:file_name_index+len(sep)] == sep:
                 match = True
-                file_name_index += len(separator)
+                file_name_index += len(sep)
                 tag_index += 1
-                separators = separators[1:]
-                break
-    
-        if not match:
+                continue
+        
+        if tag_index < len(tags_keys_list):
             tags[tags_keys_list[tag_index]] += file_name[file_name_index]
-            file_name_index += 1
+        file_name_index += 1
+            
     return tags
 
 
@@ -195,9 +195,14 @@ def make_integer_tags(tags: dict) -> None:
     if tags["bpm"]:
         print("oui")
         
+def get_tag_structure_lenght(tag: str) -> int:
+    i = 0
+    while tag[i] != '%':
+        i+=1
+    return i
 
 def check_if_discnb_and_tracknb_sticked(structure: str, file_name: str) -> None:
-    
+    return 0;
 
 
 def get_separators(structure: str) -> list:
@@ -211,7 +216,8 @@ def get_separators(structure: str) -> list:
         tuple: a tuple which contains every separators of the structure and so 
         of the file name.
     """
-    pattern = re.compile(r'%[a-zA-Z]%')
+    tag_pattern = '|'.join(re.escape(key) for key in ELEMENTS_OF_NAME.keys())
+    pattern = re.compile(f'({tag_pattern})')
     
     matches = pattern.finditer(structure)
     

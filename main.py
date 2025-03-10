@@ -4,18 +4,18 @@ import library
 test_name = "01. Pattern Factory Operators - Red Card Stratagem (feat. Jankennpopp) - Custom Air Modulations"
 test_name2 = "9 - Kool Title, Kool Artist, (1998)"
 # print(library.get_file_extension("01. Pattern Factory Operators - Red Card Stratagem (feat. Jankennpopp) - Custom Air Modulations.wav"))
-structure = "%n%. %A% - %t% - %a%"
-structure2 = "%n% - %t%, %A%, (%r%)"
+structure = "%track_number%. %artist% - %title% - %album%"
+structure2 = "%track_number% - %title%, %artist%, (%release_date%)"
 # separator = " - "
 # song = 2
 # file_name = "01. Pattern Factory Operators - Red Card Stratagem (feat. Jankennpopp) - Custom Air Modulations.wav"
 # print(library.get_tags_by_structure(structure, file_name))
 
 
-# print(test_name)
-# print(test_name2)
-# print(library.get_tags_by_structure(structure, test_name))
-# print(library.get_tags_by_structure(structure2, test_name2))
+print(test_name)
+print(test_name2)
+print(library.get_tags_by_structure(structure, test_name))
+print(library.get_tags_by_structure(structure2, test_name2))
 
 
 # print(library.get_number_of_separators(separators, test_name))
